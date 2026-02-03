@@ -36,7 +36,6 @@ createDestinationTable = '''
                             city VARCHAR(60) NOT NULL
                        )
                        '''
-cursor.execute(createDestinationTable)
 
 createTerminalTable = '''
                     CREATE TABLE terminal (
@@ -47,7 +46,6 @@ createTerminalTable = '''
                         FOREIGN KEY (destinationID) REFERENCES destination(destinationID)
                     );
                     '''
-cursor.execute(createTerminalTable)
 
 
 createPilotTable = '''
@@ -60,7 +58,6 @@ createPilotTable = '''
                         isFirstOfficerQualified BOOLEAN
                     );
                     '''
-cursor.execute(createPilotTable)
 
 flightStatusConstraint = ", ".join([f"'{s}'" for s in allowedFlightStatus])
 
@@ -89,7 +86,6 @@ createFlightTable = f'''
                         FOREIGN KEY (arrivalTerminalID) REFERENCES terminal(terminalID)
                     );
                     '''
-cursor.execute(createFlightTable)
 
 print('Table creation script complete.')
 
@@ -106,7 +102,6 @@ createDepartureStatusView = '''
                                         END AS departureStatus
                                     FROM flight;
                             '''
-cursor.execute(createDepartureStatusView)
                             
 #Create view for calculated field arrivalStatus
 createArrivalStatusView = '''
@@ -120,6 +115,26 @@ createArrivalStatusView = '''
                                         END AS arrivalStatus
                                     FROM flight;
                             '''
-cursor.execute(createArrivalStatusView)
+
+#Taken from exceptions lesson from in Database APIs using python
+try:
+    cursor.execute(createDestinationTable)
+    conn.commit()
+    cursor.execute(createTerminalTable)
+    conn.commit()
+    cursor.execute(createPilotTable)
+    conn.commit()
+    cursor.execute(createFlightTable)
+    conn.commit()
+    cursor.execute(createDepartureStatusView)
+    conn.commit()
+    cursor.execute(createArrivalStatusView)
+    conn.commit()
+except Exception as e:
+    conn.rollback()
+    print(f'Error during table creation: {e}')
+    raise e
+finally:
+    conn.close()
 
 print('View creation script complete.')
