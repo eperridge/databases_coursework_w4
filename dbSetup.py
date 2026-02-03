@@ -6,6 +6,7 @@ the schemas at the beginning of each run for a clean slate. This is because...
 """
 
 import sqlite3
+from dbOperations import allowedFlightStatus
 
 #Establish connection
 conn = sqlite3.connect('flightManagement.db')
@@ -18,6 +19,13 @@ cursor.execute('DROP TABLE IF EXISTS pilot')
 cursor.execute('DROP TABLE IF EXISTS destination')
 
 print('Drop tables script complete.')
+
+
+#Drop views
+cursor.execute('DROP VIEW IF EXISTS departureStatus')
+cursor.execute('DROP VIEW IF EXISTS arrivalStatus')
+
+print('Drop views script complete.')
 
 #Create tables, in order of reverse dependency (independent to dependent)
 createDestinationTable = '''
@@ -54,11 +62,13 @@ createPilotTable = '''
                     '''
 cursor.execute(createPilotTable)
 
-createFlightTable = '''
+flightStatusConstraint = ", ".join([f"'{s}'" for s in allowedFlightStatus])
+
+createFlightTable = f'''
                     CREATE TABLE flight (
                         flightID VARCHAR NOT NULL,
-                        scheduled DATETIME NOT NULL,
-                        flightStatus VARCHAR,
+                        scheduledDepartureDateTime DATETIME NOT NULL,
+                        flightStatus VARCHAR CHECK (flightStatus IN ({flightStatusConstraint})),
                         captainID INTEGER,
                         firstOfficer INTEGER,
                         arrivalDestinationID CHAR NOT NULL,
@@ -68,7 +78,8 @@ createFlightTable = '''
                         arrivalTerminalID CHAR,
                         scheduledArrivalDateTime DATETIME NOT NULL,
                         actualArrivalDateTime DATETIME,
-                        PRIMARY KEY (flightID, scheduled),
+                        actualDepartureDateTime DATETIME,
+                        PRIMARY KEY (flightID, scheduledDepartureDateTime),
                         FOREIGN KEY (captainID) REFERENCES pilot(pilotID),
                         FOREIGN KEY (firstOfficer) REFERENCES pilot(pilotID),
                         FOREIGN KEY (arrivalDestinationID) REFERENCES destination(destinationID),
@@ -87,15 +98,28 @@ print('Table creation script complete.')
 createDepartureStatusView = '''
                                 CREATE VIEW departureStatus AS
                                     SELECT
-                                        flightID, scheduledDepartureTime, actualDepartureTime,
+                                        flightID, scheduledDepartureDateTime, actualDepartureDateTime,
                                         CASE
-                                            WHEN actualDepartureTime IS NULL THEN 'On Time'
-                                            WHEN actualDepartureTime > scheduledDepartureTime THEN 'Delayed'
+                                            WHEN actualDepartureDateTime IS NULL THEN 'On Time'
+                                            WHEN actualDepartureDateTime > scheduledDepartureDateTime THEN 'Delayed'
                                             ELSE 'On Time'
-                                        END AS depatutre Status
+                                        END AS departureStatus
                                     FROM flight;
                             '''
+cursor.execute(createDepartureStatusView)
                             
 #Create view for calculated field arrivalStatus
+createArrivalStatusView = '''
+                                CREATE VIEW arrivalStatus AS
+                                    SELECT
+                                        flightID, scheduledArrivalDateTime, actualArrivalDateTime,
+                                        CASE
+                                            WHEN actualArrivalDateTime IS NULL THEN 'On Time'
+                                            WHEN actualArrivalDateTime > scheduledArrivalDateTime THEN 'Delayed'
+                                            ELSE 'On Time'
+                                        END AS arrivalStatus
+                                    FROM flight;
+                            '''
+cursor.execute(createArrivalStatusView)
 
-                        
+print('View creation script complete.')
