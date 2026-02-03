@@ -54,7 +54,7 @@ createPilotTable = '''
                         pilotName VARCHAR,
                         email VARCHAR,
                         dob DATE,
-                        isCapitainQualified BOOLEAN,
+                        isCaptainQualified BOOLEAN,
                         isFirstOfficerQualified BOOLEAN
                     );
                     '''
