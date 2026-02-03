@@ -81,3 +81,21 @@ createFlightTable = '''
 cursor.execute(createFlightTable)
 
 print('Table creation script complete.')
+
+#Create view for calculated field departureStatus
+ #source: https://www.sqlite.org/lang_expr.html
+createDepartureStatusView = '''
+                                CREATE VIEW departureStatus AS
+                                    SELECT
+                                        flightID, scheduledDepartureTime, actualDepartureTime,
+                                        CASE
+                                            WHEN actualDepartureTime IS NULL THEN 'On Time'
+                                            WHEN actualDepartureTime > scheduledDepartureTime THEN 'Delayed'
+                                            ELSE 'On Time'
+                                        END AS depatutre Status
+                                    FROM flight;
+                            '''
+                            
+#Create view for calculated field arrivalStatus
+
+                        
