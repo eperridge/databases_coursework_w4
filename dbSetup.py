@@ -67,23 +67,25 @@ createFlightTable = f'''
                         scheduledDepartureDateTime DATETIME NOT NULL,
                         flightStatus VARCHAR CHECK (flightStatus IN ({flightStatusConstraint})),
                         captainID INTEGER,
-                        firstOfficer INTEGER,
+                        firstOfficerID INTEGER,
                         arrivalDestinationID CHAR NOT NULL,
                         departureDestinationID CHAR NOT NULL,
                         diversionDestinationID CHAR,
                         departureTerminalID CHAR NOT NULL,
                         arrivalTerminalID CHAR,
+                        diversionTerminalID CHAR,
                         scheduledArrivalDateTime DATETIME NOT NULL,
                         actualArrivalDateTime DATETIME,
                         actualDepartureDateTime DATETIME,
                         PRIMARY KEY (flightID, scheduledDepartureDateTime),
                         FOREIGN KEY (captainID) REFERENCES pilot(pilotID),
-                        FOREIGN KEY (firstOfficer) REFERENCES pilot(pilotID),
+                        FOREIGN KEY (firstOfficerID) REFERENCES pilot(pilotID),
                         FOREIGN KEY (arrivalDestinationID) REFERENCES destination(destinationID),
                         FOREIGN KEY (departureDestinationID) REFERENCES destination(destinationID),
                         FOREIGN KEY (diversionDestinationID) REFERENCES destination(destinationID),
                         FOREIGN KEY (departureTerminalID) REFERENCES terminal(terminalID),
                         FOREIGN KEY (arrivalTerminalID) REFERENCES terminal(terminalID)
+                        FOREIGN KEY (diversionTerminalID) REFERENCES terminal(terminalID)
                     );
                     '''
 

@@ -70,6 +70,43 @@ for pilot in pilots:
 conn.commit()
 
 #flight
-
+#(flightID, schDep, status, capt, FO, arrivDest, depDest, divertedDest, depTerminal, arrTerminal, divTerminal, scheduledArrival, actualArrival, actualDep)
+flights = [
+    # 1. Bristol to Innsbruck, 20.01
+    ('EZY2101', '2026-01-20 06:15:00', 'Landed', 1, 2, 'INN', 'BRS', None, 'TERM', '1', None, '2026-01-20 09:15:00', '2026-01-20 09:10:00', '2026-01-20 06:20:00'),
+    # 2. Innsbruck to London Heathrow, 20.01
+    ('BA601', '2026-01-20 14:00:00', 'Landed', 1, 3, 'LHR', 'INN', None, '1', 'T5', None, '2026-01-20 16:05:00', '2026-01-20 16:15:00', None),
+    # 3. Larnaca to Heathrow, 28.01
+    ('BA663', '2026-01-28 14:45:00', 'Landed', 1, 2, 'LHR', 'LCA', None, '1', 'T5', None, '2026-01-28 17:45:00', '2026-01-28 17:50:00', '2026-01-28 14:50:00'),
+    # 4. Edinburgh to Heathrow, diverted back to Edinburgh
+    ('BA1435', '2025-12-02 14:00:00', 'Landed', 6, 7, 'LHR', 'EDI', 'EDI', 'T1', 'T5', 'T1', '2025-12-02 15:30:00', '2025-12-02 15:15:00', '2025-12-02 14:05:00'),
+    # 5. INN to LGW, morning
+    ('EZY8691', '2026-02-03 08:30:00', 'Landed', 1, 5, 'LGW', 'INN', None, '1', 'N', None, '2026-02-03 10:30:00', '2026-02-03 10:25:00', '2026-02-03 08:35:00'),
+    # 6. LGW to BRS, late afternoon
+    ('EZY442', '2026-02-03 17:00:00', 'In-air', 1, 6, 'BRS', 'LGW', None, 'S', 'TERM', None, '2026-02-03 18:00:00', None, '2026-02-03 17:05:00'),
+    # 7. INN to BRS
+    ('EZY2712', '2026-02-03 22:30:00', 'Scheduled', None, 7, 'INN', 'BRS', None, 'TERM', '1', None, '2026-02-04 01:30:00', None, None),
+    # 8. CDG to LCA
+    ('CY381', '2026-02-03 12:40:00', 'In-air', 1, 6, 'LCA', 'CDG', None, '1', '1', None, '2026-02-03 17:50:00', None, '2026-02-03 12:45:00'),
+    # 9. CDG to LCA
+    ('CY380', '2026-02-03 22:00:00', 'Scheduled', None, None, 'CDG', 'LCA', None, '1', '1', None, '2026-02-04 01:40:00', None, None),
+    # 10. CDG to LCA, same flightID as #8
+    ('CY381', '2026-02-19 08:00:00', 'Scheduled', None, None, 'LCA', 'CDG', None, '1', '1', None, '2026-02-05 13:10:00', None, None),
+    # 11. LCA to LHR (Feb 6 Afternoon)
+    ('BA663', '2026-02-06 14:45:00', 'Scheduled', 7, 6, 'LHR', 'LCA', None, '1', 'T5', None, '2026-02-06 17:45:00', None, None),
+    # 12. INN to LHR, 26.02
+    ('BA605', '2026-02-26 07:15:00', 'Scheduled', 1, None, 'INN', 'LHR', None, 'T5', '1', None, '2026-02-05 09:20:00', None, None),
+    
+    
+]
+for flight in flights:
+    cursor.execute("""
+        INSERT OR REPLACE INTO flight (
+            flightID, scheduledDepartureDateTime, flightStatus, captainID, firstOfficerID, 
+            arrivalDestinationID, departureDestinationID, diversionDestinationID, departureTerminalID, arrivalTerminalID, 
+            diversionTerminalID, scheduledArrivalDateTime, actualArrivalDateTime, actualDepartureDateTime
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, flight) 
+conn.commit()
 
 conn.close()
