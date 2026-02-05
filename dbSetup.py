@@ -51,11 +51,11 @@ createTerminalTable = '''
 createPilotTable = '''
                     CREATE TABLE pilot (
                         pilotID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        pilotName VARCHAR,
-                        email VARCHAR,
-                        dob DATE,
-                        isCaptainQualified BOOLEAN,
-                        isFirstOfficerQualified BOOLEAN
+                        pilotName VARCHAR NOT NULL,
+                        email VARCHAR NOT NULL,
+                        dob DATE NOT NULL,
+                        isCaptainQualified BOOLEAN NOT NULL,
+                        isFirstOfficerQualified BOOLEAN NOT NULL
                     );
                     '''
 

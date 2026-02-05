@@ -1,7 +1,8 @@
 """
-dbSeeding.py -
+dbSeeding.py - C of CRUD, C = Create
 """
 import sqlite3
+from dbOperations import flightAttributeList
 
 #Establish connection
 conn = sqlite3.connect('flightManagement.db')
@@ -71,6 +72,9 @@ conn.commit()
 
 #flight
 #(flightID, schDep, status, capt, FO, arrivDest, depDest, divertedDest, depTerminal, arrTerminal, divTerminal, scheduledArrival, actualArrival, actualDep)
+flightAttributes = ", ".join(flightAttributeList)
+valuePlaceholders = ", ".join(["?"] * len(flightAttributeList)) 
+insertSQL = f"INSERT OR REPLACE INTO flight ({flightAttributes}) VALUES ({valuePlaceholders})"
 flights = [
     # 1. Bristol to Innsbruck, 20.01
     ('EZY2101', '2026-01-20 06:15:00', 'Landed', 1, 2, 'INN', 'BRS', None, 'TERM', '1', None, '2026-01-20 09:15:00', '2026-01-20 09:10:00', '2026-01-20 06:20:00'),
@@ -95,18 +99,17 @@ flights = [
     # 11. LCA to LHR (Feb 6 Afternoon)
     ('BA663', '2026-02-06 14:45:00', 'Scheduled', 7, 6, 'LHR', 'LCA', None, '1', 'T5', None, '2026-02-06 17:45:00', None, None),
     # 12. INN to LHR, 26.02
-    ('BA605', '2026-02-26 07:15:00', 'Scheduled', 1, None, 'INN', 'LHR', None, 'T5', '1', None, '2026-02-05 09:20:00', None, None),
-    
-    
+    ('BA605', '2026-02-26 07:15:00', 'Scheduled', 1, None, 'INN', 'LHR', None, 'T5', '1', None, '2026-02-05 09:20:00', None, None)   
 ]
 for flight in flights:
-    cursor.execute("""
-        INSERT OR REPLACE INTO flight (
-            flightID, scheduledDepartureDateTime, flightStatus, captainID, firstOfficerID, 
-            arrivalDestinationID, departureDestinationID, diversionDestinationID, departureTerminalID, arrivalTerminalID, 
-            diversionTerminalID, scheduledArrivalDateTime, actualArrivalDateTime, actualDepartureDateTime
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, flight) 
+    cursor.execute(insertSQL, flight)
+    # cursor.execute("""
+    #     INSERT OR REPLACE INTO flight (
+    #         flightID, scheduledDepartureDateTime, flightStatus, captainID, firstOfficerID, 
+    #         arrivalDestinationID, departureDestinationID, diversionDestinationID, departureTerminalID, arrivalTerminalID, 
+    #         diversionTerminalID, scheduledArrivalDateTime, actualArrivalDateTime, actualDepartureDateTime
+    #     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    # """, flight) 
 conn.commit()
 
 conn.close()
