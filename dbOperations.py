@@ -652,7 +652,7 @@ def reportByTimeframe(startDate, endDate, pilotID=None):
         print(f"\nDatabase error: {e}")
     
 """
-3. Report: View Punctuality Performance
+4.3. Report: View Punctuality Performance
     Fulfils the requirement for staff to summarise information.
     This report calculates on-time vs delayed status for both departures and arrivals, sumarised by pilot.
     Logic:
