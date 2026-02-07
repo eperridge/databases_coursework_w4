@@ -3,8 +3,8 @@ main.py - Command-Line Interface (CLI)
 -------------------------------------
 This file serves as the entry point, the CLI, for the Flight Management System. The user 
 interacts with this file: it handles input and orchestrates calls to functions in other 
-files (namely dbOperations.py) which are necessary to carry out queries on the data, 
-such as making changes to the database and getting information from the database.
+files (namely dbOperations.py) which are necessary to carry out CRUD operations on the 
+data, such as making changes to the database and getting information from the database.
 
 Press play to run the script or type 'python main.py' into the terminal to start the 
 application.
@@ -16,8 +16,15 @@ addPilot, viewPilotSchedules, updatePilotDetails, viewAvailablePilots, assignPil
  reportPilotFlightCount, reportPilotWorkloadByMonth, reportByTimeframe, reportBusiestTerminal, reportPunctualityPerformance)   
 #import sqlite3
 
-# =================• ENTRY POINT & ROLE SELECTION •=================
-
+"""
+__________________________________________________________________
+=================• ENTRY POINT & ROLE SELECTION •=================
+------------------------------------------------------------------
+"""
+"""
+main()
+    Greets the user and directs them to sub-menus based on their choices.
+"""
 def main():
     print("\nHello, welcome to the flight management system.")
     time.sleep(2)
@@ -41,15 +48,22 @@ def main():
         print("Invalid role. Restarting.")
         time.sleep(3)
         main()
-        
-# =================• 2. SUB-MENUS (ORCHESTRATION) •=================
-#================•ROLE MENUS•================
+ 
+"""
+_________________________________________________________________   
+# =================• SUB-MENUS (ORCHESTRATION) •=================
+-----------------------------------------------------------------
+"""
+"""
+================•ROLE MENUS•================
+"""
 def catRole():
     print("\nSorry, you don't have access to the data.")
     time.sleep(1.5)
     
 
-#The Flight Attended is only able to view (SELECT) data.
+#The Flight Attended is only able to view (SELECT) data and information.
+#This hasn't been implemented yet.
 def flightAttendantActions():
     print("\nHello, Flight Attendant")    
     time.sleep(2)
@@ -60,7 +74,11 @@ def flightAttendantActions():
     # time.sleep(2)
     # print("View Flights by Criteria")
 
-#The Airlines Manager is able to perform all CRUD operations.
+"""
+    The Airlines Manager is able to perform all CRUD operations.
+    This menu is constructed with a loop that allows the user to navigate between Flight, Pilot,
+    Destination and Reporting options.
+"""
 def airlinesManagerActions():
     while True:
         print("\nHello, Airlines Manager")    
@@ -95,6 +113,11 @@ ____________________________________________
 =============• MANAGE FLIGHTS •=============
 --------------------------------------------
 """
+"""
+    Menu for flight-related CRUD operations. 
+    Routes the user choices to functions for viewing, adding, udpdating and deleting flight 
+    records. It also includes an option to return to the main menu.
+"""
 def getManageFlightsMenu():
     while True:
         time.sleep(2)
@@ -126,7 +149,8 @@ def getManageFlightsMenu():
             print("\nInvalid selection. Please try again by entering a number from the menu.")
         
 """
-1.1.
+1.1. View All Flights
+    Collects user choice for attributes and sorting before calling the database fetch function.
 """
 def getAllFlights():
     print("\nAction: View all flights")
@@ -144,10 +168,13 @@ def getAllFlights():
     viewAllFlights(selectedAttributes, orderCol, direction)
     
 """
-1.2. Not needed, addFlight() from dbOperations.py is used directly
+1.2. Add a New Flight
+    Not needed, addFlight() from dbOperations.py is used directly
 """
 """
-1.3.
+1.3. View Flights by Criteria (Status, Destination, Date)
+    Collects user choice for viewing flight by status or arrival destination and then asks them
+    which attributes their interested in viewing.
 """
 def getFlightsByCriteria():
     print("\nAction: View flights by criteria")
@@ -177,7 +204,9 @@ def getFlightsByCriteria():
         search = getUserInput("flight", ["arrivalDestinationID"])
         viewFlightsByCriteria("arrivalDestination", search, selectedAttributes)
 """
-1.4. 
+1.4. Update Flight Details
+    Asks user which attribute they'd like to change and for the record of which primary key. 
+    It then calls function to update the selected record.
 """
 def getUpdateFlightRecord():
     print("\nAction: Update Flight Information")
@@ -235,6 +264,10 @@ def getUpdateFlightRecord():
  
 """
 1.5. Delete a Flight Record
+    1. Returns a list of all flights in the database, displaying their PK's
+    2. Asks user which record they'd list to delete, requiring them to enter the key.
+    3. Asks user if they're sure they'd like to delete the selected record.
+    4. Deletes the record.
 """    
 def getDeleteFlightRecord():
     print("\nAction: Delete a flight record")  
@@ -257,13 +290,19 @@ def getDeleteFlightRecord():
     
     if userConfirm == 'Y':
         deleteFlightRecord(targetFlightID, targetDepartureTime)
-    else:
+    elif userConfirm == 'N':
         print("\nDeletion cancelled. Returning to menu.")
-        
+        getManageFlightsMenu()
+    else:
+        print("\nInvalid Input. Returning to menu.")
+        getManageFlightsMenu()
 """
 ____________________________________________
 =============• MANAGE PILOTS •=============
 --------------------------------------------
+"""
+"""
+    Menu for managing pilots. Offers a menu of cjoices to perform CRUD operations on the pilot table. 
 """
 def getManagePilotsMenu():
     while True:
@@ -294,6 +333,8 @@ def getManagePilotsMenu():
 
 """
 2.1. Add pilot
+    Asks user to input values for each attribute belonging to pilot, except pilotID which is
+    generated automatically and auto-incrememnted.
 """
 def getAddPilot():
     print("\nAction: Add A New Pilot")
@@ -311,6 +352,8 @@ def getAddPilot():
     
 """
 2.2. View Pilot Schedules
+    Displays existing pilot schedules and provides the user with a menu of options
+    which are useful for checking pilot availability or assigning pilots to flights.
 """
 def getPilotSchedule():
     time.sleep(1)
@@ -353,8 +396,11 @@ def getPilotSchedule():
 
 """
 2.3. Assign Pilot to Flight
+    1. Displays flights needing pilots assigned to them. 
+    2. Asks the user which flight they'd like to assign a pilot to.
+    3. Asks the user if they'd like to see available pilots.
+    4. Asks user to input a pilot ID and whether it's as captain or first officer
 """
-
 def getAssignPilot():
     print("\nAction: Assign Pilot To Flight")
     time.sleep(2)
@@ -402,6 +448,12 @@ def getAssignPilot():
     
 """
 2.4. Update Pilot Details
+    1. Prompts user to input the details of the pilot record they'd like to update.
+    2. Asks user which value they'd like to change and uses a mapping table between number
+    inputted by user and the attributes.
+    3. Asks user to input the new value.
+    4. Updates the record if the input is valid.
+    5. Asks the user if they'd like to make another change.
 """
 def getUpdatePilotDetails():
     print("\nAction: Update Pilot Details")
@@ -437,19 +489,20 @@ def getUpdatePilotDetails():
         updatePilotDetails(targetID, targetName, attributeToChange, newValue)
         
         anotherChange = input("\nWould you like to change another attribute for this pilot? (Y/N): ").strip().upper()
-        if anotherChange != 'Y':
-                updatingPilot = False
-        
-        elif userChoice == "6":
+        if anotherChange == 'N':
             updatingPilot = False
-        else:
-            print("Invalid selection. Please choose 1-6.")
-
+        elif userChoice != "Y":
+            print("Invalid selection. Returning to menu.")
+            updatingPilot = False
 
 """
 ______________________________________________________
 =============• VIEW REPORTS & SUMMARIES •=============
 ------------------------------------------------------
+"""
+"""
+ 4. Reports Menu
+    Main menu for reports and summaries, showing the user the reports available and prompting them to select one.
 """
 def getReportsMenu():
     while True:
@@ -468,9 +521,7 @@ def getReportsMenu():
         if userChoice == '1':
             getPopularityReport()
         elif userChoice == '2':
-            startDate = input("Enter Start Date (YYYY-MM-DD): ")
-            endDate = input("Enter End Date (YYYY-MM-DD): ")
-            reportByTimeframe(startDate + " 00:00:00", endDate + " 23:59:59")
+            getReportByTimeframe()
         elif userChoice == '3':
             reportPunctualityPerformance()
         elif userChoice == '4':
@@ -480,6 +531,7 @@ def getReportsMenu():
 
 """
 4.1 Report Counter
+    A sub-menu for popularity reports. Prompts user to enter they number of the report they'd like to access.
 """
 def getPopularityReport():
     print("\nAction: View Popularity Report")
@@ -500,10 +552,18 @@ def getPopularityReport():
     elif userChoice == '3':
         reportBusiestTerminal() # Uses UNION ALL for Departure + Arrival terminals 
     elif userChoice == '4':
-            getReportsMenu() 
+        getReportsMenu() 
     else:
         print("Invalid choice. Returning to reports menu.")
     
+"""
+4.2. View Flights Within Timeframe
+    Asks user to input start date and end date of the timeframe they'd like to see a report for.
+"""
+def getReportByTimeframe():
+    startDate = input("Enter Start Date (YYYY-MM-DD): ")
+    endDate = input("Enter End Date (YYYY-MM-DD): ")
+    reportByTimeframe(startDate + " 00:00:00", endDate + " 23:59:59")
 
 # """
 # Option 5: Get flights without full crew
@@ -516,8 +576,11 @@ def getPopularityReport():
 #         ]
 #     viewFlightsByCriteria("unassigned", (), selectedAttributes) #() because no ? placeholder
             
-
-#================•UTILITY DATA & INPUT HANDLING================
+"""
+__________________________________________________________________
+#================• UTILITY DATA & INPUT HANDLING •================
+------------------------------------------------------------------
+"""
 def handleUserReset():
     print("\nEnter 'Exit' to leave the session, enter 'Return' to start again.")
     userInput = input("Enter: ").strip().lower() #lower so that it isn't case sensitive
@@ -542,7 +605,7 @@ attributeGuidance = {
     "pilot": {
         "pilotID": "PK. Autogenerated by system", #auto
         "pilotName": "",
-        "email": "",#enfoce "@domain"
+        "email": "",#in future enfoce "@domain"
         "dob": "(YYYY-MM-DD)",
         "isCaptainQualified": "(0 for No, 1 for Yes)",
         "isFirstOfficerQualified": "(0 for No, 1 for Yes)"
@@ -566,7 +629,9 @@ attributeGuidance = {
 }
 
 """
-Reusable function to get user input for any table
+Reusable function to get user input for any table.
+Uses the dictionary, attributeGuidance, above.
+Iterates through a table's attributes, provides guidance for data types and handles non-optional field validation.
 """
 def getUserInput(tableName, attributeList):
     print(f"Entering details for {tableName} table...")

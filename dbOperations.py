@@ -1,5 +1,13 @@
 """
-dbOperations.py - 
+dbOperations.py - For Data Access
+    Contains logic and SQL queries for the application. 
+    It isolates the interactions with the database from the user's interactions with the interface (main.py).
+    This file groups the code by purpose:
+        > Lists of attributes & constants
+        > Helper functions
+        > Manage flights
+        > Manage pilots
+        > View reports & summaries
 """
 import time
 import sqlite3
@@ -7,6 +15,12 @@ import sys
 
 conn = sqlite3.connect('flightManagement.db')
 cursor = conn.cursor()
+
+"""
+_____________________________________________________________
+=============• LISTS OF ATTRIBUTES & CONSTANTS •=============
+-------------------------------------------------------------
+"""
 
 #Define allowed flightStatus values in a list
 allowedFlightStatus = ['Scheduled', 'In-air', 'Landed', 'Cancelled']
@@ -17,7 +31,13 @@ flightAttributeList = [
     "scheduledArrivalDateTime", "actualArrivalDateTime", "actualDepartureDateTime"]
 
 """
+______________________________________________
 =============• HELPER FUNCTIONS •=============
+----------------------------------------------
+"""
+"""
+Formats SQL fetchall() results into a human readable table for the user.
+It iterates through the results, prints headers and seperates headers and values with pipes.
 """
 def printTableOfResults(results, selectedAttributes):
     if not results:
@@ -29,10 +49,12 @@ def printTableOfResults(results, selectedAttributes):
         
         for row in results:
             print(" | ".join(str(item) for item in row))
-            
+
+"""
+Creates and returns a connection and cursor for the SQLite database.
+Called with: conn, cursor = getDBConnection()
+"""            
 def getDBConnection(): 
-   # Creates and returns a connection and cursor for the SQLite database
-   # called with: conn, cursor = getDBConnection()
     try:
         conn = sqlite3.connect('flightManagement.db') 
         cursor = conn.cursor()
@@ -40,22 +62,39 @@ def getDBConnection():
     except sqlite3.Error as e:
         print(f"Error connecting to database: {e}")
         return None, None
-   
+    
+# """
+# User Selection: Leave This Session
+#     Closes connection
+#     @@$&%&£$(@)$%&%) NOT BEING USED @@$&%&£$(@)$%&%)
+# """
+# def leaveSession(conn):
+#     try:
+#         if conn:
+#             conn.commit()
+#             conn.close()
+#             print("\nDatabase connection has been closed.")
+#             time.sleep(1)
+#             print("\nThank you for using the Flight Management System! Goodbye!")
+#             time.sleep(2)
 
-"""
---------------------------------------------
-____________________________________________
-===============• OPERATIONS •===============
-____________________________________________
---------------------------------------------
-"""
+#     except sqlite3.Error as e:
+#         print("Error during closure: {e}")
+#         time.sleep(2)
+        
+#     sys.exit()
+   
 """
 ____________________________________________
 =============• MANAGE FLIGHTS •=============
+=================• (CRUD) •=================
 --------------------------------------------
 """
 """
 1.1. View All Flights
+    Fulfils requirement for the airline staff to retrieve information.
+    It dynamically constructs a SELECT query based on user-selected attributes and orders the results
+    by a user-selected attribute, allowing them to choose whether to sort by ASC or DESC.
 """
 def viewAllFlights(selectedAttributes, orderByString, orderDirection):
     conn, cursor = getDBConnection() 
@@ -78,8 +117,10 @@ def viewAllFlights(selectedAttributes, orderByString, orderDirection):
 
 """
 1.2. Add a New Flight
-Executes INSERT query to add a new flight record. The addFlightUserInput tuple must contain values in the correct order.
-in main the function is: addFlight(userInput)
+    Fulfis requirement for airline staff to add information.
+    Executes INSERT query to add a new flight record, using positional placeholders, ?. 
+    The addFlightUserInput tuple must contain values in the correct order.
+    Called by: addFlight(userInput)
 """
 def addFlight(addFlightUserInput):
     flightAttributes = ", ".join(flightAttributeList)
@@ -105,10 +146,9 @@ def addFlight(addFlightUserInput):
         
 """
 1.3. View Flights by Criteria
-Allow user to input criteria: 
-    departureStatus, destination, flightStatus, scheduledDepartureDateTime,
-    flightStatus AND scheduledDepartureDateTime
-in main the function is: getFlightsByCriteria()
+    Fulfils requirement for airline staff to retrieve information.
+    Allow user to retrive flights based on status or destination. 
+    Called by: getFlightsByCriteria()
 """
 def viewFlightsByCriteria(criteria, value, selectedAttributes):
     conn, cursor = getDBConnection() 
@@ -136,6 +176,9 @@ def viewFlightsByCriteria(criteria, value, selectedAttributes):
  
 """
 1.4. Update Flight Schedule or Status
+    Fulfils requirement for airline staff to update existing flight schedules.
+    Asks the user to input the composite primary key of the record they'd like to update,
+    then executes an UPDATE query on this record, using the changes selected by the user.
     - ask what would you like to update?
     - give option of all columns except flightID
     - show current table: flightID, scheduledDepartureDateTime and selected columns
@@ -183,7 +226,8 @@ def viewSelectedFlightAttibutes(selectedAttributes, flightID=None, scheduledDepa
         
 """
 1.5. Delete a Flight Record
-    Pass in the composite primary key to delete a flight record
+    Fulfils requirement for airline staff to delete a record.
+    Pass in the composite primary key selected by the user to execute a DELETE FROM QUERY on a record in the flight table.
 """    
 def deleteFlightRecord(flightID, scheduledDeparture):
     conn, cursor = getDBConnection()
@@ -201,34 +245,17 @@ def deleteFlightRecord(flightID, scheduledDeparture):
     except sqlite3.Error as e:
         print(f"Error during deletion: {e}")
 
-"""
- 6. User Selection: Leave This Session
-    Closes connection
-    @@$&%&£$(@)$%&%) NOT BEING USED @@$&%&£$(@)$%&%)
-"""
-def leaveSession(conn):
-    try:
-        if conn:
-            conn.commit()
-            conn.close()
-            print("\nDatabase connection has been closed.")
-            time.sleep(1)
-            print("\nThank you for using the Flight Management System! Goodbye!")
-            time.sleep(2)
-
-    except sqlite3.Error as e:
-        print("Error during closure: {e}")
-        time.sleep(2)
-        
-    sys.exit()
     
 """
-____________________________________________
+___________________________________________
 =============• MANAGE PILOTS •=============
---------------------------------------------
+=================• (CRUD) •================
+-------------------------------------------
 """
 """
-2.1.
+2.1. Add Pilot
+    Fulfils requirement for airline staff to add a record.
+    Executes INSERT query to add a new pilot record, using positional placeholders, ?. 
 """
 def addPilot(pilotData):
     conn, cursor = getDBConnection()
@@ -261,10 +288,10 @@ def addPilot(pilotData):
         print(f"\nAn unexpected error occurred: {e}")
         
 """
-2.2. View Pilot Schedules
-    Lesson 3: Multiple Table Queries, Union and Intersection
+2.2.1 View Pilot Schedules
+    Fulfils requirement to retrive information about pilots. 
+    Fetches table of pilots.
 """
-
 def viewAllPilots():
     conn, cursor = getDBConnection()
     
@@ -280,6 +307,13 @@ def viewAllPilots():
     except sqlite3.Error as e:
         print(f"Database error: {e}")
 
+"""
+2.2.2 View Pilot Schedules
+    Fulfuls requriements for airline staff to retrieve pilot and flight information.
+    - Uses a UNION to fetch flights where a pilot is a Captain or First Officer.
+    - Joins pilot with flight to show which flights pilots are assigned to and when.
+    Lesson 3: Multiple Table Queries, Union and Intersection
+"""
 def viewPilotSchedules():
     conn, cursor = getDBConnection()
     
@@ -324,6 +358,11 @@ def viewPilotSchedules():
     except sqlite3.Error as e:
         print(f"\nDatabase error: {e}")   
         
+"""
+2.2.3 View Pilot Schedules
+    Fulfils requrement for airline staff to retrieve pilot and flight infroamtions.
+    Retrieves a list of scheduled without a full crew assigned.
+"""        
 def viewUnassignedFlights():
     conn, cursor = getDBConnection()
     # Looking for NULLs in the pilot ID columns
@@ -346,6 +385,13 @@ def viewUnassignedFlights():
     except sqlite3.Error as e:
         print(f"\nDatabase error: {e}")   
 
+"""
+2.2.4 View Pilot Schedules
+    Fulfils requirement for staff to retrieve pilot and flight schedules.
+    Allows the user to input a time period they need a pilot for. The query creates a list of pilots whose
+    assignments overlap with the user selected time stamps and returns the list of pilots not in the list.
+    A UNION is used to combine flight.captainID and flight.firstOfficerID into one pilotID column.
+"""
 def viewAvailablePilots(startTime, endTime):
     conn, cursor = getDBConnection()
     
@@ -380,6 +426,8 @@ def viewAvailablePilots(startTime, endTime):
     
 """
 2.3. Assign pilot to flight
+    Fulfils requirement for staff to update flight schedules.
+    Updates a scheduled glight record with a pilotID in either the capitainID or firstOfficerID column.
 """
 def assignPilotToFlight(flightID, departureTime, pilotID, role):
     conn, cursor = getDBConnection()
@@ -405,6 +453,12 @@ def assignPilotToFlight(flightID, departureTime, pilotID, role):
 
 """
 2.4. Update Pilot Details
+    Fulfuls requirement for airline staff to modify information about pilots.
+    Allows user to select the record they'd like to change. The program asks for the pilotName in 
+    addition to the pilotID to ensure that the correct record is being selected - a pilotID is
+    easier to get wrong than a pilotName. It then asks the user which attribute they'd like to 
+    change. It notifies the user of the outcome of the action.
+    
 """
 def updatePilotDetails(pilotID, pilotName, attributeToChange, newValue):
     conn, cursor = getDBConnection()
@@ -455,8 +509,10 @@ ______________________________________________________
     
         
 """
-Calculates flights each pilot has been assigned to, checking Captain ID and First Officer ID in the flight table,
-then joining to the pilot table to fetch names.
+4.1.1. View Popularity Report
+    Fulfils the requirement for staff to summarise information.
+    Calculates flights each pilot has been assigned to, checking Captain ID and First Officer ID in the flight table,
+    then joining to the pilot table to fetch names.
 """
 def reportPilotFlightCount():
     conn, cursor = getDBConnection()
@@ -488,6 +544,16 @@ def reportPilotFlightCount():
     except sqlite3.Error as e:
         print(f"Database error: {e}")        
 
+
+"""
+4.1.2  Report Pilot Workload by Month
+    Fulfils the requirement for staff to summarise information.
+    Gives a month-by-month view of pilot utilisation.
+    Uses the strftime('%Y-%m', ...) SQL function to group flight data by month and year.
+    A UNION ALL query is used to ensure that all pilots, as they may be a Captain or a 
+    First Officers on a flight, are combined into 1 pilot column for the COUNT. The results
+    are grouped by month and pilotName and ordered firstly by month, them count (i.e. Flights).
+"""
 def reportPilotWorkloadByMonth():
     sqlQuery = """
         SELECT strftime('%Y-%m', f.scheduledDepartureDateTime) as Month, p.pilotName, COUNT(*) as Flights
@@ -511,7 +577,17 @@ def reportPilotWorkloadByMonth():
     
     except sqlite3.Error as e:
         print(f"\nDatabase error: {e}")
-    
+
+"""
+4.1.3. Busiest Terminal Overall
+    Fulfils the requirement for staff to summarise information.
+    Calculates how many times a terminal is used for departure, arrival or diversion.
+    Logic:
+    1. Performs 3 unions to consolidate all terminal columns in the flight table: departure, arrival and diversion.
+    2. Pairs terminal IDs with their destination ID's to give context of where the terminal is, as they aren't 
+    necessarily named uniquely, unilike destination ID's. 
+    3. Filters out NULL values to remove unused terminals.
+"""
 def reportBusiestTerminal():
     conn, cursor = getDBConnection()
     
@@ -546,6 +622,15 @@ def reportBusiestTerminal():
     except sqlite3.Error as e:
         print(f"Database error: {e}")
 
+"""
+4.2. View Flights Within Timeframe
+    Fulfils the requirement for staff to summarise information.
+    A dynamic report that allows the user to select a time period with params startDate and endDate to return a flitered list of flights
+    occurring within this time period.
+    The query executes a SELECT query using the BETWEEN operator on the scheduledDepartureDateTime.
+    The user has the option to filter the query by pilot. This additional statement is added to the main query using +=.
+"""
+
 def reportByTimeframe(startDate, endDate, pilotID=None):
     conn, cursor = getDBConnection()
     
@@ -567,7 +652,14 @@ def reportByTimeframe(startDate, endDate, pilotID=None):
         print(f"\nDatabase error: {e}")
     
 """
-3. Report: View Performance
+3. Report: View Punctuality Performance
+    Fulfils the requirement for staff to summarise information.
+    This report calculates on-time vs delayed status for both departures and arrivals, sumarised by pilot.
+    Logic:
+    1. Uses UNION ALL query to combine capitaID and firstOfficerID from the flight table as a single pilotID,
+    as it is presented in the pilot table. This ensures that all pilot assignments to flights are counted.
+    2. Uses conditional logic, CASE, to compared scheduled vs actual time stamps and takes the sum of 1/0.
+    3. Groups by pilot ID.
 """
 def reportPunctualityPerformance():
     conn, cursor = getDBConnection()
@@ -609,32 +701,32 @@ def reportPunctualityPerformance():
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         
-"""
-Group traffic by destination and terminal to show usage
-"""    
-def reportTerminalTraffic():
-    conn, cursor = getDBConnection()
+# """
+# Group traffic by destination and terminal to show usage
+# """    
+# def reportTerminalTraffic():
+#     conn, cursor = getDBConnection()
    
-    # Use UNION ALL to capture every time a terminal is used for a departure or arrival
-    sqlQuery = """
-        SELECT airportID, terminal, COUNT(*) as UsageCount
-        FROM (
-            SELECT arrivalDestinationID AS airportID, arrivalTerminal AS Terminal FROM flight
-            UNION ALL
-            SELECT departureDestinationID AS airportID, departureTerminal AS Terminal FROM flight
-        )
-        WHERE Terminal IS NOT NULL
-        GROUP BY airportID, Terminal
-        ORDER BY UsageCount DESC;
-    """
-    try:
-        cursor.execute(sqlQuery)
-        results = cursor.fetchall()
+#     # Use UNION ALL to capture every time a terminal is used for a departure or arrival
+#     sqlQuery = """
+#         SELECT airportID, terminal, COUNT(*) as UsageCount
+#         FROM (
+#             SELECT arrivalDestinationID AS airportID, arrivalTerminal AS Terminal FROM flight
+#             UNION ALL
+#             SELECT departureDestinationID AS airportID, departureTerminal AS Terminal FROM flight
+#         )
+#         WHERE Terminal IS NOT NULL
+#         GROUP BY airportID, Terminal
+#         ORDER BY UsageCount DESC;
+#     """
+#     try:
+#         cursor.execute(sqlQuery)
+#         results = cursor.fetchall()
         
-        headers = ["Airport", "Terminal", "Total Traffic"]
-        print("\nReport: Terminal Usage Summary")
-        time.sleep(2)
-        printTableOfResults(results, headers)
+#         headers = ["Airport", "Terminal", "Total Traffic"]
+#         print("\nReport: Terminal Usage Summary")
+#         time.sleep(2)
+#         printTableOfResults(results, headers)
     
-    except sqlite3.Error as e:
-        print(f"\nDatabase error: {e}")
+#     except sqlite3.Error as e:
+#         print(f"\nDatabase error: {e}")
