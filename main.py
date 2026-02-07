@@ -11,9 +11,9 @@ application.
 """
 import sys
 import time
-from dbOperations import (flightAttributeList, viewAllFlights, addFlight, viewFlightsByCriteria, leaveSession, updateFlightRecord, viewSelectedFlightAttibutes, allowedFlightStatus, deleteFlightRecord, viewUnassignedFlights,
+from dbOperations import (flightAttributeList, viewAllFlights, addFlight, viewFlightsByCriteria, updateFlightRecord, viewSelectedFlightAttibutes, allowedFlightStatus, deleteFlightRecord, viewUnassignedFlights,
 addPilot, viewPilotSchedules, updatePilotDetails, viewAvailablePilots, assignPilotToFlight, viewAllPilots,
- reportPilotFlightCount, reportPilotWorkloadByMonth, reportByTimeframe, reportBusiestTerminal, reportPunctualityPerformance)   
+ reportPilotFlightCount, reportPilotWorkloadByMonth, reportByTimeframe, reportBusiestTerminal, reportPilotPunctuality, reportFlightPunctuality)   
 #import sqlite3
 
 """
@@ -512,19 +512,22 @@ def getReportsMenu():
         time.sleep(2)
         print("1. View Popularity")
         print("2. View Flights Within Timeframe")
-        print("3. View Punctuality Performance")
-        print("4. Return to Main Menu")
+        print("3. View Pilot Punctuality")
+        print("4. View Flight Punctuality")
+        print("5. Return to Main Menu")
         time.sleep(2)
         
-        userChoice = input("\nEnter the number of your choice (1-4): ").strip()
+        userChoice = input("\nEnter the number of your choice (1-5): ").strip()
         
         if userChoice == '1':
             getPopularityReport()
         elif userChoice == '2':
             getReportByTimeframe()
         elif userChoice == '3':
-            reportPunctualityPerformance()
+            reportPilotPunctuality()
         elif userChoice == '4':
+            reportFlightPunctuality()
+        elif userChoice == '5':
             main() 
         else:
             print("\nInvalid selection. Please try again by entering a number from the menu.")

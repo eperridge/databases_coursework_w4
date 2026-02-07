@@ -1,10 +1,11 @@
 """
-dbSeeding.py - C of CRUD, C = Create
+dbSeeding.py - Data Population via Seeding
+    This script seeds flightManagement.db with sample data
 """
 import sqlite3
 from dbOperations import flightAttributeList
 
-#Establish connection
+#Establish connection to db
 conn = sqlite3.connect('flightManagement.db')
 cursor = conn.cursor()
 
@@ -26,11 +27,12 @@ destinations = [
 ]
 
 #Use loop in Python to go line by line to populate the tables record by record
+#Use INSERT OR REPLACE to prevent key duplicate errors during re-runs
 for dest in destinations:
     cursor.execute("INSERT OR REPLACE INTO destination VALUES (?, ?, ?, ?)", dest)
 conn.commit()
 
-#terminal
+#Seed terminal
 terminals = [
     ('N', 'LGW', 'North Terminal'),
     ('S', 'LGW', 'South Terminal'),
@@ -70,7 +72,7 @@ for pilot in pilots:
                    ''', pilot)
 conn.commit()
 
-#flight
+#flight seeding
 #(flightID, schDep, status, capt, FO, arrivDest, depDest, divertedDest, depTerminal, arrTerminal, divTerminal, scheduledArrival, actualArrival, actualDep)
 flightAttributes = ", ".join(flightAttributeList)
 valuePlaceholders = ", ".join(["?"] * len(flightAttributeList)) 
@@ -111,5 +113,5 @@ for flight in flights:
     #     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     # """, flight) 
 conn.commit()
-
+print("Database seeding complete.")
 conn.close()

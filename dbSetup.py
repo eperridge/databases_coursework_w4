@@ -1,18 +1,18 @@
 """
-dbSetup.py - 
-
-Contains queries necessary to create schemas, set-up tables and views. It drops existing 
-the schemas at the beginning of each run for a clean slate. This is because...
+dbSetup.py - Database Initialisation
+    This script creates the relational schema for the Flight Management System.
+    It contains queries necessary to create schemas, set-up tables and views and it defines primary and foreign keys. 
+    It drops existing the schemas at the beginning of each run for a clean slate. 
 """
 
 import sqlite3
 from dbOperations import allowedFlightStatus
 
-#Establish connection
+#Establish connection to database file
 conn = sqlite3.connect('flightManagement.db')
 cursor = conn.cursor()
 
-#Drop tables in order of dependency (dependent to independent)
+#Drop existing tables in order of dependency (dependent to independent) to avoid foreign key dependencies
 cursor.execute('DROP TABLE IF EXISTS flight')
 cursor.execute('DROP TABLE IF EXISTS terminal')
 cursor.execute('DROP TABLE IF EXISTS pilot')
@@ -21,13 +21,16 @@ cursor.execute('DROP TABLE IF EXISTS destination')
 print('Drop tables script complete.')
 
 
-#Drop views
-cursor.execute('DROP VIEW IF EXISTS departureStatus')
-cursor.execute('DROP VIEW IF EXISTS arrivalStatus')
+#Drop existing views
+cursor.execute('DROP VIEW IF EXISTS departurePerformance')
+cursor.execute('DROP VIEW IF EXISTS arrivalPerformance')
 
 print('Drop views script complete.')
 
-#Create tables, in order of reverse dependency (independent to dependent)
+#Create tables, in order of reverse dependency (independent to dependent). 
+#Independent tables have no foreign keys and are created first.
+
+#Table for storing airports, i.e. destinations
 createDestinationTable = '''
                        CREATE TABLE destination (
                             destinationID CHAR(3) NOT NULL PRIMARY KEY,
@@ -37,6 +40,7 @@ createDestinationTable = '''
                        )
                        '''
 
+#Table for storing airport terminals, linked to destinations
 createTerminalTable = '''
                     CREATE TABLE terminal (
                         terminalID VARCHAR NOT NULL,
@@ -47,7 +51,7 @@ createTerminalTable = '''
                     );
                     '''
 
-
+#Table for storing pilots and their details
 createPilotTable = '''
                     CREATE TABLE pilot (
                         pilotID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -59,8 +63,11 @@ createPilotTable = '''
                     );
                     '''
 
+#Check constraint for flightStatus, which is an attribute in the flight table
 flightStatusConstraint = ", ".join([f"'{s}'" for s in allowedFlightStatus])
 
+#Flight table for storing flight details
+#Has many foreign keys and uses the contraint above
 createFlightTable = f'''
                     CREATE TABLE flight (
                         flightID VARCHAR NOT NULL,
@@ -92,9 +99,10 @@ createFlightTable = f'''
 print('Table creation script complete.')
 
 #Create view for calculated field departureStatus
- #source: https://www.sqlite.org/lang_expr.html
-createDepartureStatusView = '''
-                                CREATE VIEW departureStatus AS
+    #This view calculates the field departureStatus, giving it a value of Delayed or On Time without altering the flight table
+    #source: https://www.sqlite.org/lang_expr.html
+createDeparturePerformanceView = '''
+                                CREATE VIEW departurePerformance AS
                                     SELECT
                                         flightID, scheduledDepartureDateTime, actualDepartureDateTime,
                                         CASE
@@ -106,8 +114,8 @@ createDepartureStatusView = '''
                             '''
                             
 #Create view for calculated field arrivalStatus
-createArrivalStatusView = '''
-                                CREATE VIEW arrivalStatus AS
+createArrivalPerformanceView = '''
+                                CREATE VIEW arrivalPerformance AS
                                     SELECT
                                         flightID, scheduledArrivalDateTime, actualArrivalDateTime,
                                         CASE
@@ -118,7 +126,8 @@ createArrivalStatusView = '''
                                     FROM flight;
                             '''
 
-#Taken from exceptions lesson from in Database APIs using python
+# Execute table and view creation within a try-except block to handle errors
+    #Taken from exceptions lesson from in Database APIs using python
 try:
     cursor.execute(createDestinationTable)
     conn.commit()
@@ -128,9 +137,9 @@ try:
     conn.commit()
     cursor.execute(createFlightTable)
     conn.commit()
-    cursor.execute(createDepartureStatusView)
+    cursor.execute(createDeparturePerformanceView)
     conn.commit()
-    cursor.execute(createArrivalStatusView)
+    cursor.execute(createArrivalPerformanceView)
     conn.commit()
 except Exception as e:
     conn.rollback()

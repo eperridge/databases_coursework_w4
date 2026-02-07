@@ -66,7 +66,7 @@ def getDBConnection():
 # """
 # User Selection: Leave This Session
 #     Closes connection
-#     @@$&%&£$(@)$%&%) NOT BEING USED @@$&%&£$(@)$%&%)
+#     NOT BEING USED
 # """
 # def leaveSession(conn):
 #     try:
@@ -652,7 +652,7 @@ def reportByTimeframe(startDate, endDate, pilotID=None):
         print(f"\nDatabase error: {e}")
     
 """
-4.3. Report: View Punctuality Performance
+4.3. Report: View Pilot Punctuality
     Fulfils the requirement for staff to summarise information.
     This report calculates on-time vs delayed status for both departures and arrivals, sumarised by pilot.
     Logic:
@@ -661,7 +661,7 @@ def reportByTimeframe(startDate, endDate, pilotID=None):
     2. Uses conditional logic, CASE, to compared scheduled vs actual time stamps and takes the sum of 1/0.
     3. Groups by pilot ID.
 """
-def reportPunctualityPerformance():
+def reportPilotPunctuality():
     conn, cursor = getDBConnection()
     
     # Conditional aggregation to count on-time and delayed
@@ -695,6 +695,45 @@ def reportPunctualityPerformance():
         time.sleep(2)
         
         # Formatting the results for the airline manager
+        printTableOfResults(results, headers)
+        time.sleep(4)
+        
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+
+"""
+4.4. Report: View Flight Punctuality
+    Fulfils the requirement for staff to summarise information.
+    This report uses fetches the calculated fields departureStatus and arrivalStatus for each flight
+"""
+def reportFlightPunctuality():
+    conn, cursor = getDBConnection()
+    
+    # COALESCE to fill NULL results from the views with 'Pending'. 
+    # In retrospect, the view currently is calculated so that flights are on time until proved otherwise
+    sqlQuery = """
+        SELECT 
+            f.flightID, 
+            f.scheduledDepartureDateTime, 
+            COALESCE(dp.departureStatus, 'Pending') as departureStatus,
+            COALESCE(ap.arrivalStatus, 'Pending') as arrivalStatus
+        FROM flight f
+        LEFT JOIN departurePerformance dp
+            ON f.flightID = dp.flightID 
+            AND f.scheduledDepartureDateTime = dp.scheduledDepartureDateTime
+        LEFT JOIN arrivalPerformance ap 
+            ON f.flightID = ap.flightID 
+            AND f.scheduledArrivalDateTime = ap.scheduledArrivalDateTime
+        ORDER BY f.scheduledDepartureDateTime DESC;
+    """
+    try:
+        cursor.execute(sqlQuery)
+        results = cursor.fetchall()
+        
+        headers = ["Flight ID", "Scheduled Departure", "Departure Status", "Arrival Status"]
+        print("\nReport: Individual Flight Punctuality")
+        time.sleep(2)
+        
         printTableOfResults(results, headers)
         time.sleep(4)
         
