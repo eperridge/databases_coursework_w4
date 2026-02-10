@@ -64,9 +64,9 @@ def getDBConnection():
         return None, None
     
 # """
+#   ****FOR FUTURE ITERATION****
 # User Selection: Leave This Session
 #     Closes connection
-#     NOT BEING USED
 # """
 # def leaveSession(conn):
 #     try:
@@ -153,7 +153,10 @@ def addFlight(addFlightUserInput):
 def viewFlightsByCriteria(criteria, value, selectedAttributes):
     conn, cursor = getDBConnection() 
     
-    attributeString = ", ".join(selectedAttributes)
+    if "all" in selectedAttributes:
+        attributeString = "*"
+    else:
+        attributeString = ", ".join(selectedAttributes)
     
     #dictionary to map criterias to specific SQL queries
     queries = {
@@ -378,7 +381,7 @@ def viewUnassignedFlights():
         cursor.execute(sqlQuery)
         results = cursor.fetchall()
         
-        attributes = ["Flight", "Departure", "Arrival ", "Departing From", "Arriving To", "Role"]
+        attributes = ["Flight", "Departure", "Arrival ", "Departing From", "Arriving To", "Flight Status"]
         print("\nPilot Schedule:")
         printTableOfResults(results, attributes)
         
@@ -395,7 +398,7 @@ def viewUnassignedFlights():
 def viewAvailablePilots(startTime, endTime):
     conn, cursor = getDBConnection()
     
-    #Select pilots whose ID isn't in the flight table within the selected time period (looking at scheduledDepartureDateTime and scheduledArrivalDateTime)
+    #Select pilots whose ID isn't in the flight table within the selected time period   (looking at scheduledDepartureDateTime and scheduledArrivalDateTime)
     sqlQuery = """
         SELECT pilotID, pilotName, email, isCaptainQualified, isFirstOfficerQualified
         FROM pilot
@@ -482,32 +485,6 @@ ______________________________________________________
 =============• VIEW REPORTS & SUMMARIES •=============
 ------------------------------------------------------
 """        
-"""
-4.1. Report Counter
-"""      
-# def reportCounter(attributeChoice):
-#     if attributeChoice == "bothDestinations":
-#         sqlQuery = """
-#             SELECT loc, COUNT(*) FROM (
-#                 SELECT arrivalDestinationID AS loc FROM flight
-#                 UNION ALL
-#                 SELECT departureDestinationID AS loc FROM flight
-#             ) GROUP BY loc ORDER BY COUNT(*) DESC
-#         """
-#     else:
-#         sqlQuery = f"""SELECT {attributeChoice}, 
-#         COUNT (*) FROM flight GROUP BY {attributeChoice} ORDER BY COUNT(*) DESC
-#         """
-#     try:
-#         cursor.execute(sqlQuery)
-#         results = cursor.fetchall()
-#         printTableOfResults(results, ["Item", "Count"])
-
-#     except sqlite3.Error as e:
-#         print(f"\nDatabase error: {e}")
-        
-    
-        
 """
 4.1.1. View Popularity Report
     Fulfils the requirement for staff to summarise information.
@@ -615,7 +592,7 @@ def reportBusiestTerminal():
         print("\nReport: Busiest Terminals Overall")
         time.sleep(2)
         
-        # This calls your standardized formatting helper.
+        # This calls your standardised formatting helper.
         printTableOfResults(results, headers) 
         time.sleep(4)
         
@@ -740,32 +717,3 @@ def reportFlightPunctuality():
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         
-# """
-# Group traffic by destination and terminal to show usage
-# """    
-# def reportTerminalTraffic():
-#     conn, cursor = getDBConnection()
-   
-#     # Use UNION ALL to capture every time a terminal is used for a departure or arrival
-#     sqlQuery = """
-#         SELECT airportID, terminal, COUNT(*) as UsageCount
-#         FROM (
-#             SELECT arrivalDestinationID AS airportID, arrivalTerminal AS Terminal FROM flight
-#             UNION ALL
-#             SELECT departureDestinationID AS airportID, departureTerminal AS Terminal FROM flight
-#         )
-#         WHERE Terminal IS NOT NULL
-#         GROUP BY airportID, Terminal
-#         ORDER BY UsageCount DESC;
-#     """
-#     try:
-#         cursor.execute(sqlQuery)
-#         results = cursor.fetchall()
-        
-#         headers = ["Airport", "Terminal", "Total Traffic"]
-#         print("\nReport: Terminal Usage Summary")
-#         time.sleep(2)
-#         printTableOfResults(results, headers)
-    
-#     except sqlite3.Error as e:
-#         print(f"\nDatabase error: {e}")

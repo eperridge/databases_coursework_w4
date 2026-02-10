@@ -105,13 +105,7 @@ flights = [
 ]
 for flight in flights:
     cursor.execute(insertSQL, flight)
-    # cursor.execute("""
-    #     INSERT OR REPLACE INTO flight (
-    #         flightID, scheduledDepartureDateTime, flightStatus, captainID, firstOfficerID, 
-    #         arrivalDestinationID, departureDestinationID, diversionDestinationID, departureTerminalID, arrivalTerminalID, 
-    #         diversionTerminalID, scheduledArrivalDateTime, actualArrivalDateTime, actualDepartureDateTime
-    #     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    # """, flight) 
+
 conn.commit()
 print("Database seeding complete.")
 conn.close()
