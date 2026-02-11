@@ -11,8 +11,8 @@ application.
 """
 import sys
 import time
-from dbOperations import (flightAttributeList, viewAllFlights, addFlight, viewFlightsByCriteria, updateFlightRecord, viewSelectedFlightAttibutes, allowedFlightStatus, deleteFlightRecord, viewUnassignedFlights,
-addPilot, viewPilotSchedules, updatePilotDetails, viewAvailablePilots, assignPilotToFlight, viewAllPilots, 
+from dbOperations import (flightAttributeList, viewAllFlights, addFlight, viewFlightsByCriteria, updateFlightRecord, viewSelectedFlightAttibutes, allowedFlightStatus, FlightRecord, viewUnassignedFlights,
+getPilotName, addPilot, viewPilotSchedules, updatePilotDetails, viewAvailablePilots, assignPilotToFlight, viewAllPilots, deletePilotRecord,
 reportPilotFlightCount, reportPilotWorkloadByMonth, reportByTimeframe, reportBusiestTerminal, reportPilotPunctuality, reportFlightPunctuality)   
 
 
@@ -321,7 +321,7 @@ def getManagePilotsMenu():
         elif userChoice == '4':
             getUpdatePilotDetails()       
         elif userChoice == '5':
-            print("Delete Pilot - Functionality Coming Soon!")
+            getDeletePilotRecord()
         elif userChoice == '6':
             main() 
         else:
@@ -490,6 +490,42 @@ def getUpdatePilotDetails():
         elif userChoice != "Y":
             print("Invalid selection. Returning to menu.")
             updatingPilot = False
+
+"""
+2.5 Delete a pilot record
+"""
+def getDeletePilotRecord():
+    print("\nAction: Delete a Pilot Record")
+    time.sleep(1)
+    
+    # 1. Show all pilots so the user can see available IDs
+    viewAllPilots() 
+    time.sleep(2)
+    
+    targetID = input("\nEnter the ID of the Pilot you wish to delete: ").strip()
+    time.sleep(1)
+    
+    if not targetID:
+        print("Invalid ID. Returning to menu.")
+        time.sleep(2)
+        return
+
+    # 2. Fetch the pilot name for confirmation that this is the correct pilot
+    pilotName = getPilotName(targetID)
+    
+    if pilotName:
+        # 3. Confirm with both pilot ID and name
+        userConfirm = input(f"Are you sure you want to delete Pilot #{targetID} {pilotName}? (Y/N): ").strip().upper()
+        time.sleep(2)
+        
+        if userConfirm == 'Y':
+            deletePilotRecord(targetID)
+        else:
+            print("\nDeletion cancelled. Returning to menu.")
+            time.sleep(2)
+    else:
+        print(f"\nError: No pilot found with ID {targetID}.")
+        time.sleep(2)
 
 """
 ______________________________________________________

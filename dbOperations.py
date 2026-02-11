@@ -63,6 +63,22 @@ def getDBConnection():
         print(f"Error connecting to database: {e}")
         return None, None
     
+"""
+Helper function for getting a pilot's name
+"""
+"""
+Helper Functions
+"""
+def getPilotName(pilotID):
+    conn, cursor = getDBConnection()
+    try:
+        cursor.execute("SELECT pilotName FROM pilot WHERE pilotID = ?", (pilotID,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+        return None
+    
 # """
 #   ****FOR FUTURE ITERATION****
 # User Selection: Leave This Session
@@ -479,6 +495,33 @@ def updatePilotDetails(pilotID, pilotName, attributeToChange, newValue):
    
     except sqlite3.Error as e:
         print(f"\nDatabase error: {e}")
+        
+
+"""
+2.5 Delete a pilot record
+    Fulfills requirement for airline staff to delete a pilot record.
+    Executes a DELETE FROM query based on the pilotID.
+"""
+def deletePilotRecord(pilotID):
+    conn, cursor = getDBConnection()
+    
+    sqlQuery = "DELETE FROM pilot WHERE pilotID = ?"
+    
+    try:
+        cursor.execute(sqlQuery, (pilotID,))
+        conn.commit()
+        if cursor.rowcount > 0: #no. of impacted pilots > 0
+            print(f"\nPilot with ID no. {pilotID} has been successfully deleted.")
+        else:
+            print(f"\nNo record found for Pilot ID {pilotID} - nothing has been deleted.")
+    ## The below is for a future project phase. 
+    ## Currently, there is no check to see if a pilot is assigned to scheduled flights
+    # except sqlite3.IntegrityError as e:
+    #         # Handle cases where the pilot is assigned to flight(s)
+    #         print("\nERROR: Cannot delete pilot. They are assigned to an existing flight.")
+    #         print("Please unassign or delete their flights first.")
+    except sqlite3.Error as e:
+        print(f"\nDatabase error during deletion: {e}")
         
 """
 ______________________________________________________
