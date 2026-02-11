@@ -518,8 +518,8 @@ def deletePilotRecord(pilotID):
     ## Currently, there is no check to see if a pilot is assigned to scheduled flights
     # except sqlite3.IntegrityError as e:
     #         # Handle cases where the pilot is assigned to flight(s)
-    #         print("\nERROR: Cannot delete pilot. They are assigned to an existing flight.")
-    #         print("Please unassign or delete their flights first.")
+    #         print("\nERROR: Cannot delete pilot. They are assigned to an existing scheduled flight.")
+    #         print("Please unassign them from any scheduled flights first.")
     except sqlite3.Error as e:
         print(f"\nDatabase error during deletion: {e}")
         
